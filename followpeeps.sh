@@ -1,5 +1,6 @@
 #!/bin/bash
-#This script will automatically follow all of the users in a given Github organization (if you have access). Note: this only works if 2-Factor authorization is disabled.
+#This script will automatically follow all of the users in a given Github organization (if you have access). 
+# Note: this only works if 2-Factor authorization is disabled.
  
 #1
 #get username for authentication
@@ -35,4 +36,4 @@ for i in ${ARRAY[@]};
 
 #7
 #clean up
-rm ./members.txt
+rm ./members.txtt
