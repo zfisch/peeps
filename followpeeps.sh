@@ -33,4 +33,6 @@ for i in ${ARRAY[@]};
  	sleep .01
   done
 
-
+#7
+#clean up
+rm ./members.txt
