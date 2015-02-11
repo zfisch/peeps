@@ -36,4 +36,4 @@ for i in ${ARRAY[@]};
 
 #7
 #clean up
-rm ./members.txtt
+rm ./members.txt
