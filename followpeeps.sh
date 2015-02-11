@@ -8,13 +8,13 @@ read name
  
 #2
 #authenticate user with necesarry permissions
-token=$(curl -u $name -d '{"scopes": ["user", "read:org"], "note": "follow peeeeps"}' https://api.github.com/authorizations) | grep -Po '(?<="token": ")[^"]*'
+token=$(curl -Ss -u $name -d '{"scopes": ["user", "read:org"], "note": "follow peeeeps"}' https://api.github.com/authorizations) | grep -Po '(?<="token": ")[^"]*'
 
 #4 
 #find members of given github organization
 echo -n "Enter the Github organization whose peeps you would like to follow and press [ENTER]: "
 read org
-curl 'Authorization: token $token' -X GET https://api.github.com/orgs/$org/members > members.txt
+curl -Ss 'Authorization: token $token' -X GET https://api.github.com/orgs/$org/members > members.txt
  
 #5
 #need to parse data from GET request for user logins and store in variable <users> here
