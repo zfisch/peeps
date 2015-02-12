@@ -16,7 +16,8 @@ token=$(curl -Ss -u $name -d '{"scopes": ["user", "read:org"], "note": "follow p
 echo -n "Enter the Github organization whose peeps you would like to follow and press [ENTER]: "
 read org
 if ! curl --fail -Ss 'Authorization: token $token' -X GET https://api.github.com/orgs/$org/members > members.txt; then
-	echo "An error occurred while attempting to read the organization's members."
+	echo "An error occurred while attempting to read the organization's members, exiting."
+	exit
 fi
  
 #5
