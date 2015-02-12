@@ -15,7 +15,9 @@ token=$(curl -Ss -u $name -d '{"scopes": ["user", "read:org"], "note": "follow p
 #find members of given github organization
 echo -n "Enter the Github organization whose peeps you would like to follow and press [ENTER]: "
 read org
-curl -Ss 'Authorization: token $token' -X GET https://api.github.com/orgs/$org/members > members.txt
+if ! curl --fail -Ss 'Authorization: token $token' -X GET https://api.github.com/orgs/$org/members > members.txt; then
+	echo "An error occurred while attempting to read the organization's members."
+fi
  
 #5
 #need to parse data from GET request for user logins and store in variable <users> here
