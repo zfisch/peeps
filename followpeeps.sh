@@ -1,5 +1,6 @@
 #!/bin/bash
-#This script will automatically follow all of the users in a given Github organization (if you have access). Note: this only works if 2-Factor authorization is disabled.
+#This script will automatically follow all of the users in a given Github organization (if you have access). 
+# Note: this only works if 2-Factor authorization is disabled.
  
 #1
 #get username for authentication
@@ -8,13 +9,13 @@ read name
  
 #2
 #authenticate user with necesarry permissions
-token=$(curl -u $name -d '{"scopes": ["user", "read:org"], "note": "follow peeeeps"}' https://api.github.com/authorizations) | grep -Po '(?<="token": ")[^"]*'
+token=$(curl -Ss -u $name -d '{"scopes": ["user", "read:org"], "note": "follow peeeeps"}' https://api.github.com/authorizations) | grep -Po '(?<="token": ")[^"]*'
 
 #4 
 #find members of given github organization
 echo -n "Enter the Github organization whose peeps you would like to follow and press [ENTER]: "
 read org
-curl 'Authorization: token $token' -X GET https://api.github.com/orgs/$org/members > members.txt
+curl -Ss 'Authorization: token $token' -X GET https://api.github.com/orgs/$org/members > members.txt
  
 #5
 #need to parse data from GET request for user logins and store in variable <users> here
@@ -33,4 +34,6 @@ for i in ${ARRAY[@]};
  	sleep .01
   done
 
-
+#7
+#clean up
+rm ./members.txt
