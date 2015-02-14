@@ -9,7 +9,9 @@ read name
  
 #2
 #authenticate user with necesarry permissions
-token=$(curl -Ss -u $name -d '{"scopes": ["user", "read:org"], "note": "follow peeeeps"}' https://api.github.com/authorizations) | grep -Po '(?<="token": ")[^"]*'
+curl -Ss -u $name -d '{"scopes": ["user", "read:org"], "note": "follow peeeeps"}' https://api.github.com/authorizations > cred.txt
+token="$(python parsetoken.py)"
+echo $token
 
 #4 
 #find members of given github organization
@@ -40,3 +42,4 @@ for i in ${ARRAY[@]};
 #7
 #clean up
 rm ./members.txt
+rm ./cred.txt
