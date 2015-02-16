@@ -12,7 +12,7 @@
 4. That's it!
 
 ###Note
-`HTTP/1.1 204 No Content` is GitHub's way of saying you are successfully following a user.
+After each user is followed you will see a header with `HTTP/1.1 204 No Content` at the top. You will see one for every user in the organization.
 
 
 ###Contributions
