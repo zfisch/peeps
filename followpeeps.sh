@@ -16,13 +16,11 @@ if [ $boolean == "y" ]
 then
 	curl -Ss -u $name https://api.github.com/authorizations > cred.txt
 	#!/usr/bin/env python
-	token="$(python parsetoken.py)"
-	echo $token
+	token="$(python pyscripts/parsetoken.py)"
 else
 	curl -Ss -u $name -d '{"scopes": ["user", "read:org"], "note": "follow peeps"}' https://api.github.com/authorizations > cred.txt
 	#!/usr/bin/env python
-	token="$(python parsetoken2.py)"
-	echo $token
+	token="$(python pyscripts/parsetoken2.py)"
 fi
 
 #4 
@@ -36,9 +34,7 @@ curl -I -u $token:x-oauth-basic https://api.github.com/orgs/$org/members > numpa
 
 # get number of pages
 #!/usr/bin/env python
-numpages="$(python parsenumpages.py)"
-echo $numpages
-
+numpages="$(python pyscripts/parsenumpages.py)"
 
 #4
 #Create member list file
@@ -47,17 +43,11 @@ until [ $COUNTER -lt 0 ]; do
 	curl -Ss -u $token:x-oauth-basic https://api.github.com/orgs/$org/members?page=$COUNTER >> members.txt
 	let COUNTER-=1
 done
-
-# if ! curl --fail -Ss 'Authorization: token $token' https://api.github.com/orgs/$org/members > members.txt; then
-# 	echo "An error occurred while attempting to read the organization's members, exiting."
-# 	exit
-# fi
  
 #5
 #need to parse data from GET request for user logins and store in variable <users> here
 #!/usr/bin/env python
-LOGINS="$(python parselogins.py)"
-echo $LOGINS
+LOGINS="$(python pyscripts/parselogins.py)"
  
 #6
 #follow all users
