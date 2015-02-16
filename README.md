@@ -12,7 +12,7 @@
 4. That's it!
 
 ###Note
-`HTTP/1.1 204 No Content` is GitHub's way of saying you are successfully following a user ;)
+`HTTP/1.1 204 No Content` is GitHub's way of saying you are successfully following a user.
 
 
 ###Contributions
