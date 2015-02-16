@@ -1,19 +1,19 @@
 #!/usr/bin/python
 
-import json
-import unicodedata
+import re
 
-json_data=open("members.txt").read()
-data = json.loads(json_data)
+data=open("members.txt").read()
 
 def findLogins():
-	string = ""
-	for x in data:
-		loginName = unicodedata.normalize("NFKD", x["login"]).encode('ascii', 'ignore')
-		string += loginName + ' '
-	print string
-
+	users = data.split('login')
+	logins = []
+	for user in users:
+		str(user)
+		loginLine = user.splitlines()[0]
+		login = re.sub(r'\W+', '', loginLine)
+		logins.append(login)
+	logins.pop(0)
+	bashArray = ' '.join(logins)
+	print bashArray
 
 findLogins()
-
-

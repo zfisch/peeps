@@ -8,34 +8,62 @@ echo -n "Enter your Github username and press [ENTER]: "
 read name
  
 #2
-#authenticate user with necesarry permissions
-curl -Ss -u $name -d '{"scopes": ["user", "read:org"], "note": "follow peeeeps"}' https://api.github.com/authorizations > cred.txt
-token="$(python parsetoken.py)"
-echo $token
+#grab existing token or authenticate user with necesarry permissions
+echo -n "Have you run this script before? (y/n) "
+read boolean
+
+if [ $boolean == "y" ]
+then
+	curl -Ss -u $name https://api.github.com/authorizations > cred.txt
+	#!/usr/bin/env python
+	token="$(python parsetoken.py)"
+	echo $token
+else
+	curl -Ss -u $name -d '{"scopes": ["user", "read:org"], "note": "follow peeps"}' https://api.github.com/authorizations > cred.txt
+	#!/usr/bin/env python
+	token="$(python parsetoken2.py)"
+	echo $token
+fi
 
 #4 
 #find members of given github organization
 echo -n "Enter the Github organization whose peeps you would like to follow and press [ENTER]: "
 read org
-if ! curl --fail -Ss 'Authorization: token $token' -X GET https://api.github.com/orgs/$org/members > members.txt; then
-	echo "An error occurred while attempting to read the organization's members, exiting."
-	exit
-fi
+
+#3
+#get number of pages to pull membership data from (necessary due to github pagination, see https://developer.github.com/guides/traversing-with-pagination/)
+curl -I -u $token:x-oauth-basic https://api.github.com/orgs/$org/members > numpages.txt
+
+# get number of pages
+#!/usr/bin/env python
+numpages="$(python parsenumpages.py)"
+echo $numpages
+
+
+#4
+#Create member list file
+COUNTER=$numpages
+until [ $COUNTER -lt 0 ]; do
+	curl -Ss -u $token:x-oauth-basic https://api.github.com/orgs/$org/members?page=$COUNTER >> members.txt
+	let COUNTER-=1
+done
+
+# if ! curl --fail -Ss 'Authorization: token $token' https://api.github.com/orgs/$org/members > members.txt; then
+# 	echo "An error occurred while attempting to read the organization's members, exiting."
+# 	exit
+# fi
  
 #5
 #need to parse data from GET request for user logins and store in variable <users> here
 #!/usr/bin/env python
-ARRAY="$(python parselogins.py)"
-#will need to stick the output of this pyscript into the ARRAY variable as a list of users separated by a single space (no commas, quotes, etc.)...
- 
+LOGINS="$(python parselogins.py)"
+echo $LOGINS
  
 #6
 #follow all users
-for i in ${ARRAY[@]};
+for i in ${LOGINS[@]};
   do 
-    #for testing, use echo i, when complete, make actual put requests
-    echo $i
- 	#curl -i -H 'Authorization: token <token>' -X PUT https://api.github.com/user/following/$i;
+    curl -Ss -i -u $token:x-oauth-basic -X PUT https://api.github.com/user/following/$i
  	sleep .01
   done
 
@@ -43,3 +71,4 @@ for i in ${ARRAY[@]};
 #clean up
 rm ./members.txt
 rm ./cred.txt
+rm ./numpages.txt
