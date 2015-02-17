@@ -10,7 +10,7 @@ def findLogins():
 	for user in users:
 		str(user)
 		loginLine = user.splitlines()[0]
-		login = re.sub(r'\W+', '', loginLine)
+		login = re.sub(r'[^a-zA-Z0-9\-]', '', loginLine)
 		logins.append(login)
 	logins.pop(0)
 	bashArray = ' '.join(logins)
