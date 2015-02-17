@@ -51,9 +51,16 @@ LOGINS="$(python pyscripts/parselogins.py)"
  
 #6
 #follow all users
+echo "Following all users in "$org", please wait..."
 for i in ${LOGINS[@]};
   do 
-    curl -Ss -i -u $token:x-oauth-basic -X PUT https://api.github.com/user/following/$i
+    response=$(curl --silent --write-out %{http_code} --output /dev/null -u $token:x-oauth-basic -X PUT https://api.github.com/user/following/$i)
+ 	if [ $response == "204" ]
+ 		then
+ 		echo "You are now following: "$i
+ 	else
+ 		echo "There was a problem following: "$i
+ 	fi
  	sleep .01
   done
 
