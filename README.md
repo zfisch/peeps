@@ -1,4 +1,4 @@
-# orgy
+#ORGY
 ## Follow all users in a github organization from the command line.
 
 ###Dependencies
@@ -6,13 +6,13 @@
 2. Python
 
 ###To Run
-1. Download the files to your computer.
-2. From the command line, enter `chmod u+x followpeeps.sh`.
-3. Enter `followpeeps.sh`.
+1. Download the repository to your computer.
+2. From the command line, navigate to the orgy folder and `chmod u+x followpeeps.sh`.
+3. Enter `followpeeps.sh` to run the script.
 4. That's it!
 
 ###Note
-After each user is followed you will see a header with `HTTP/1.1 204 No Content` at the top. You will see one for every user in the organization.
+Please report any issues you experience or submit a pull request if you see an opportunity for improvement.
 
 
 ###Contributions
