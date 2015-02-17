@@ -7,8 +7,8 @@
 
 ###To Run
 1. Download the repository to your computer.
-2. From the command line, navigate to the peeps folder and `chmod u+x followpeeps.sh`.
-3. Enter `followpeeps.sh` to run the script.
+2. From the command line, navigate to the peeps folder and `chmod u+x peeps.sh`.
+3. Enter `peeps.sh` to run the script.
 4. That's it!
 
 ###Note
