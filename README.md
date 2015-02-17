@@ -1,4 +1,4 @@
-#ORGY
+#PEEPS
 ## Follow all users in a github organization from the command line.
 
 ###Dependencies
@@ -7,7 +7,7 @@
 
 ###To Run
 1. Download the repository to your computer.
-2. From the command line, navigate to the orgy folder and `chmod u+x followpeeps.sh`.
+2. From the command line, navigate to the peeps folder and `chmod u+x followpeeps.sh`.
 3. Enter `followpeeps.sh` to run the script.
 4. That's it!
 
