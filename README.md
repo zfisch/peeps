@@ -14,6 +14,8 @@
 ###Note
 Please report any issues you experience or submit a pull request if you see an opportunity for improvement.
 
-
 ###Contributions
 Any contributions you make to this effort are greatly appreciated : )
+
+###License
+Please see [license](https://github.com/zfisch/peeps/blob/master/LICENSE.txt)
