@@ -1,48 +1,59 @@
 from getpass import getpass
 from urlparse import urljoin
 import urllib2, base64, json, unicodedata
+import requests
 
 class GitHubConnection(object):
   GIT_API = "https://api.github.com"
 
-  def __init__(self, username, password, done_before):
-    # PasswordMgr doesn't work, see http://stackoverflow.com/questions/2407126/python-urllib2-basic-auth-problem
-    self.base64string = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')
-    self.get_credentials()
+  def __init__(self, username, password, org):
+    s = requests.Session()
+    s.auth = (username, password)
+    self.default_request = s
+    self.token = ''
+    # s.headers.update({'Accept': 'application/vnd.github.v3+json'})
+    self.org = org
 
-  def make_git_api_call(self, string):
+      # Start by deleting any previous peeps authorizations b/c github no longer allows retrieval of tokens from pre-existing authorizations
+    self.delete_existing_authorization()
+
+  def make_git_api_call(self, string, params, http_verb):
     request_string = urljoin(self.GIT_API, string)
-    request = urllib2.Request(request_string)
-    request.add_header("Authorization", "Basic %s" % self.base64string)
-    try: return urllib2.urlopen(request)
-    except urllib2.URLError as e:
-      print e.reason
+    r = getattr(self.default_request, http_verb)(request_string, data=json.dumps(params))
+    return r.json()
 
-  def get_credentials(self):
-    self.credentials = self.make_git_api_call("authorizations")
-    find_token(self.credentials)
+  def create_authorization(self):
+    params = {"note": "peeps", "scopes": ["user", "read:org"]}
+    credentials = self.make_git_api_call('authorizations', params, 'post')
+    self.token = credentials['token']
+    self.get_members_of_org(self.org)
 
+  def delete_existing_authorization(self):
+    old_peeps_id = ''
+    existing_authorizations = self.make_git_api_call('authorizations', '', 'get')
+    for auth in existing_authorizations:
+      if auth['note'] == "peeps":
+        old_peeps_id = str(auth['id'])
+    request_string = 'authorizations/' + old_peeps_id
+    if old_peeps_id:
+      self.make_git_api_call(request_string, '', 'delete')
 
-  def find_token(self, credentials):
-    data = json.loads(open(credentials).read())
-      for x in data:
-        if x['note'] == "follow peeps":
-          self.token = x['token']
-        else:
-          make_credentials(self)
+    # after pre-existing auth is deleted, a new one can be made
+    self.create_authorization()
 
-  # def make_credentials(self):
-    
+  def get_members_of_org(self, organization):
+    params = {'Accept': 'application/vnd.github.ironman-preview+json'}
+    api_endpoint = '/orgs/' + organization + '/members'
+    members = self.make_git_api_call(api_endpoint, params, 'get')
+    print members
+
 
 def main():
   username = raw_input("Enter your github username: ")
   password = getpass("Enter your github password: ")
-  run_before = ""
+  org = raw_input("Enter the name of the organization whose members you would like to follow: ")
 
-  while run_before not in ["y", "n"]:
-    run_before = raw_input("Have you run this before? (y/n): ").lower()
-
-  conn = GitHubConnection(username, password, run_before == "y")
+  conn = GitHubConnection(username, password, org)
 
 if __name__ == "__main__":
     main()
