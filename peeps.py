@@ -31,6 +31,9 @@ class GitHubConnection(object):
         else:
           make_credentials(self)
 
+  # def make_credentials(self):
+    
+
 def main():
   username = raw_input("Enter your github username: ")
   password = getpass("Enter your github password: ")
