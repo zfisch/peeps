@@ -1,15 +1,17 @@
 #PEEPS
-## Follow all users in a github organization from the command line.
+## Follow all users in a github team or organization from the command line.
 
 ###Dependencies
 1. Github account with 2-factor authorization **disabled**.
 2. Python
+3. Requests
 
 ###To Run
 1. Download the repository to your computer.
-2. From the command line, navigate to the peeps folder and `chmod u+x peeps.sh`.
-3. Enter `sh peeps.sh` to run the script.
-4. That's it!
+2. If you haven't already, `brew install python`.
+3. Run `pip install requests` from the command line.
+4. Run `python peeps.py` and follow the prompts.
+5. That's it!
 
 ###Note
 Please report any issues you experience or submit a pull request if you see an opportunity for improvement.
