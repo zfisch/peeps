@@ -1,52 +1,78 @@
 from getpass import getpass
 from urlparse import urljoin
-import urllib2, base64, json, unicodedata
+import json
 import requests
 
 class GitHubConnection(object):
-  GIT_API = "https://api.github.com"
+  # GIT_API = "https://api.github.com"
 
   def __init__(self, username, password, org):
-    s = requests.Session()
-    s.auth = (username, password)
-    self.default_request = s
+    default_req = requests.Session()
+    default_req.auth = (username, password)
+    # Custom Accept header suggested by GitHub, see: https://developer.github.com/v3/media/#request-specific-version
+    default_req.headers.update({'Accept': 'application/vnd.github.v3+json'})
+    self.default_request = default_req
     self.token = ''
-    # s.headers.update({'Accept': 'application/vnd.github.v3+json'})
     self.org = org
 
-      # Start by deleting any previous peeps authorizations b/c github no longer allows retrieval of tokens from pre-existing authorizations
+    # Start by deleting any previous peeps authorizations b/c github doest not allow retrieval of tokens from pre-existing authorizations
     self.delete_existing_authorization()
 
-  def make_git_api_call(self, string, params, http_verb):
-    request_string = urljoin(self.GIT_API, string)
+  def make_github_api_call(self, request_string, params, http_verb):
     r = getattr(self.default_request, http_verb)(request_string, data=json.dumps(params))
-    return r.json()
+
+    # For members get requests, return r for further processing
+    if params == {'Accept': 'application/vnd.github.ironman-preview+json'}:
+      return r
+    if r.status_code != 204:
+      return r.json()
 
   def create_authorization(self):
-    params = {"note": "peeps", "scopes": ["user", "read:org"]}
-    credentials = self.make_git_api_call('authorizations', params, 'post')
+    params = {"note": "followpeepsscriptv2", "scopes": ["user", "read:org"]}
+    credentials = self.make_github_api_call('https://api.github.com/authorizations', params, 'post')
     self.token = credentials['token']
     self.get_members_of_org(self.org)
 
   def delete_existing_authorization(self):
-    old_peeps_id = ''
-    existing_authorizations = self.make_git_api_call('authorizations', '', 'get')
-    for auth in existing_authorizations:
-      if auth['note'] == "peeps":
-        old_peeps_id = str(auth['id'])
-    request_string = 'authorizations/' + old_peeps_id
-    if old_peeps_id:
-      self.make_git_api_call(request_string, '', 'delete')
+    # deletes an existing authorization for peeps if it exists
+    old_peeps_id = None
+    existing_authorizations = self.make_github_api_call('https://api.github.com/authorizations', '', 'get')
+    if existing_authorizations:
+      for auth in existing_authorizations:
+        if auth['note'] == "followpeepsscriptv2":
+          old_peeps_id = str(auth['id'])
+          request_string = 'https://api.github.com/authorizations/' + old_peeps_id
+          self.make_github_api_call(request_string, '', 'delete')
+          break
 
     # after pre-existing auth is deleted, a new one can be made
     self.create_authorization()
 
   def get_members_of_org(self, organization):
+    # GitHub paginates results, so we must make multiple requests and build up a collection of users from each individual response
     params = {'Accept': 'application/vnd.github.ironman-preview+json'}
-    api_endpoint = '/orgs/' + organization + '/members'
-    members = self.make_git_api_call(api_endpoint, params, 'get')
-    print members
+    request_string = 'https://api.github.com/orgs/' + organization + '/members'
 
+    def get_next_page_of_members(request_string):
+      get_members_response = self.make_github_api_call(request_string, params, 'get')
+      for member in get_members_response.json():
+        self.follow_user(member['login'])
+      if 'next' in get_members_response.links:
+        get_next_page_of_members(links['next']['url'])
+
+    get_next_page_of_members(request_string)
+
+
+  def follow_user(self, username):
+    print "Would follow user: ", username
+    # first check if already following username, returns 204 if following, 404 if not following.
+    # api_endpoint = 'https://api.github.com/user/following/' + username
+    # not_following_user = self.make_github_api_call(api_endpoint, '', 'get')
+
+    # # if user is not being followed, follow them.
+    # if not_following_user:
+      # params = {'Content-Length': 0, "Authorization": "token " + str(self.token)}
+      # self.make_github_api_call(api_endpoint, params, 'put')
 
 def main():
   username = raw_input("Enter your github username: ")
