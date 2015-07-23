@@ -1,9 +1,10 @@
 #PEEPS
-## Follow all users in a github organization from the command line.
+## Follow all users in a github team or organization from the command line.
 
 ###Dependencies
 1. Github account with 2-factor authorization **disabled**.
 2. Python
+3. Requests
 
 ###To Run
 1. Download the repository to your computer.
