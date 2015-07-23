@@ -57,7 +57,7 @@ class GitHubConnection(object):
 
 
   def follow_user(self, username):
-    print "Would follow user: ", username
+    print "Would follow user if enabled: ", username
     # first check if already following username, returns 204 if following, 404 if not following.
     # request_url = 'https://api.github.com/user/following/' + username
     # not_following_user = self.make_github_api_call(request_url, '', 'get')

@@ -9,7 +9,7 @@
 1. Download the repository to your computer.
 2. If you haven't already, `brew install python`.
 3. Run `pip install requests` from the command line.
-4. Run `python peeps.py` to run the script.
+4. Run `python peeps.py` and follow the prompts.
 5. That's it!
 
 ###Note
