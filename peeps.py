@@ -54,13 +54,14 @@ class GitHubConnection(object):
     if members_response.status_code == 404:
       print "Error: Could not find members of: '" + organization + "'."
       members_response.raise_for_status()
-    if members_response.status_code == 403:
+    elif members_response.status_code == 403:
       print "Error: You do not have permission to access to this group."
       members_response.raise_for_status()
-    for member in members_response.json():
-      self.follow_user(member['login'])
-    if 'next' in members_response.links:
-      self.get_next_page_of_members(members_response.links['next']['url'], params)
+    else:
+      for member in members_response.json():
+        self.follow_user(member['login'])
+      if 'next' in members_response.links:
+        self.get_next_page_of_members(members_response.links['next']['url'], params)
 
   def get_members_of_org(self, organization):
     # GitHub paginates results, so we must make multiple requests and follow users from each response.
@@ -85,31 +86,25 @@ class GitHubConnection(object):
         break
       if team_id == '':
         print "Sorry, team '" + team + "' could not be found in organization '" + self.org + "'."
-      if team_id != '':
+      else:
         request_string = 'https://api.github.com/teams/' + str(team_id) + '/members'
         self.get_next_page_of_members(request_string, params)
 
   def follow_user(self, username):
-    print "Would follow user if enabled: '" + username + "'."
+    # First check if already following user before sending a follow request.
+    request_url = 'https://api.github.com/user/following/' + username
+    check_follow_status = self.make_github_api_call(request_url, '', 'get')
 
-    #################################################
-    # UNCOMMENT THE CODE BELOW TO ENABLE FOLLOWING! #
-    #################################################
+    # If a user is not currently followed, the server will respond with a 404.
+    if check_follow_status.status_code == 404:
+      params = {'Content-Length': 0, "Authorization": "token " + str(self.token)}
+      follow_user_response = self.make_github_api_call(request_url, params, 'put')
 
-    # # First check if already following user before sending a follow request.
-    # request_url = 'https://api.github.com/user/following/' + username
-    # check_follow_status = self.make_github_api_call(request_url, '', 'get')
-
-    # # If a user is not currently followed, the server will respond with a 404.
-    # if check_follow_status.status_code == 404:
-    #   params = {'Content-Length': 0, "Authorization": "token " + str(self.token)}
-    #   follow_user_response = self.make_github_api_call(request_url, params, 'put')
-
-    #   # If a user is successfully followed, the server will respond with a 204.
-    #   if follow_user_response.status_code == 204:
-    #     print "You are now following: '" + username + "'."
-    #   else:
-    #     print "Error: There was a problem following: ", username
+      # If a user is successfully followed, the server will respond with a 204.
+      if follow_user_response.status_code == 204:
+        print "You are now following: '" + username + "'."
+      else:
+        print "Error: There was a problem following: ", username
 
 def main():
   username = raw_input("Enter your github username: ")
@@ -122,7 +117,7 @@ def main():
   if team_or_organization == 'o':
     org = raw_input("Enter the name of the organization whose members you would like to follow: ")
     team = None
-  else:
+  elif team_or_organization == 't':
     team = raw_input("Enter the name of the team: ").lower()
     org = raw_input("Enter the name of the organization in which the team resides: ")
 
